@@ -1,0 +1,17 @@
+{
+    "name": "hoshinohideya/admob",
+    "require": {
+        "google/apiclient": "^2.18"
+    },
+    "autoload": {
+        "psr-4": {
+            "Hoshinohideya\\Admob\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Hideya Hoshino",
+            "email": "efabvx@gmail.com"
+        }
+    ]
+}
