@@ -3,3 +3,4 @@ client_secrets.json
 bin
 .env
 token.json
+cron.sh

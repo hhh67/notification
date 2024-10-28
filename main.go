@@ -14,7 +14,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("envの読み込みに失敗したよ")
+		log.Fatalf("envの読み込みに失敗したよ: %v", err)
 	}
 
 	subcommands.Register(&admob.NoticeSummaryCmd{}, "notification")
