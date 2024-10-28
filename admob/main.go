@@ -4,9 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/google/subcommands"
+	"github.com/slack-go/slack"
 )
 
 type NoticeSummaryCmd struct {
@@ -31,11 +33,20 @@ func (p *NoticeSummaryCmd) SetFlags(f *flag.FlagSet) {
 	f.BoolVar(&p.y, "y", false, "年次のサマリを通知します")
 }
 
-func (p *NoticeSummaryCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
-	for _, arg := range f.Args() {
-		fmt.Println(os.Getenv("ADMOB_PUBLISHER_ID"))
-		fmt.Printf("%s ", arg)
+func (cmd *NoticeSummaryCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
+	apiUrl := fmt.Sprintf("https://admob.googleapis.com/v1/accounts/pub-%s/networkReport:generate", os.Getenv("ADMOB_PUBLISHER_ID"))
+
+	requestBody, startDate, endDate := MakeRequestBody(cmd)
+
+	result, err := RequestAdmobApi(apiUrl, requestBody)
+	if err != nil {
+		log.Printf("Admob APIのリクエストに失敗しちゃった！: %v", err)
+		return subcommands.ExitFailure
 	}
-	fmt.Println()
+
+	slackClient := slack.New(os.Getenv("SLACK_API_TOKEN"))
+	channel := os.Getenv("SLACK_ADMOB_CHANNEL_ID")
+	SendSlackMessage(slackClient, channel, cmd, result, startDate, endDate)
+
 	return subcommands.ExitSuccess
 }
