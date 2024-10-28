@@ -1,13 +1,13 @@
 # 通知CLI
 
-1. GCPでOAuth2.0の設定
+### 1. GCPでOAuth2.0の設定
 
 下記を参考にしてOAuth 2.0 のクライアントID、クライアントシークレット、リダイレクトURLを控えておいてね。
 
 https://developers.google.com/admob/api/v1/getting-started?hl=ja
 
 
-2. 環境変数の設定
+### 2. 環境変数の設定
 
 下記に従って必要な環境変数を設定してね。
 
@@ -20,7 +20,7 @@ https://developers.google.com/admob/api/v1/getting-started?hl=ja
 |SLACK_API_TOKEN|SlackのOAuth Tokens|
 |SLACK_ADMOB_CHANNEL_ID|送信したいチャンネルID|
 
-3. びるど
+### 3. びるど
 
 下記のコマンドを実行し、びるどしてから使ってね。
 
@@ -35,7 +35,7 @@ go build -o bin
 ./bin [コマンド] --help
 ```
 
-4. OAuth2.0を含むコマンドをはじめて実行する場合
+### 4. OAuth2.0を含むコマンドをはじめて実行する場合
 
 下記のような文字列が出力されるよ。
 
