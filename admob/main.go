@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/google/subcommands"
 )
@@ -32,7 +33,7 @@ func (p *NoticeSummaryCmd) SetFlags(f *flag.FlagSet) {
 
 func (p *NoticeSummaryCmd) Execute(_ context.Context, f *flag.FlagSet, _ ...interface{}) subcommands.ExitStatus {
 	for _, arg := range f.Args() {
-
+		fmt.Println(os.Getenv("ADMOB_PUBLISHER_ID"))
 		fmt.Printf("%s ", arg)
 	}
 	fmt.Println()

@@ -3,14 +3,21 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
 	"os"
 
 	"github.com/google/subcommands"
 	"github.com/hhh67/notification/admob"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	subcommands.Register(&admob.NoticeSummaryCmd{}, "aa")
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("envの読み込みに失敗したよ")
+	}
+
+	subcommands.Register(&admob.NoticeSummaryCmd{}, "notification")
 
 	flag.Parse()
 	ctx := context.Background()
