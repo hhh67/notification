@@ -2,3 +2,4 @@ vendor
 client_secrets.json
 bin
 .env
+token.json

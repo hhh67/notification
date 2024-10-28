@@ -2,6 +2,7 @@ package admob
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,9 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
 )
 
 type Date struct {
@@ -78,9 +82,11 @@ func RequestAdmobApi(apiUrl string, requestBody map[string]interface{}) ([]Repor
 		log.Fatalf("HTTPリクエストの作成に失敗しちゃった！: %v", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", os.Getenv("GCP_API_TOKEN")))
 
-	client := &http.Client{}
+	client, err := oauth2Authentication()
+	if err != nil {
+		log.Fatalf("OAuth2認証に失敗しちゃった！: %v", err)
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatalf("HTTPリクエストに失敗しちゃった！: %v", err)
@@ -138,4 +144,64 @@ func MakeRequestBody(cmd *NoticeSummaryCmd) (map[string]interface{}, time.Time, 
 			},
 		},
 	}, startDate, endDate
+}
+
+func oauth2Authentication() (*http.Client, error) {
+	config := &oauth2.Config{
+		ClientID:     os.Getenv("GOOGLE_OAUTH2_CLIENT_ID"),
+		ClientSecret: os.Getenv("GOOGLE_OAUTH2_CLIENT_SECRET"),
+		RedirectURL:  os.Getenv("GOOGLE_OAUTH2_REDIRECT_URL"),
+		Scopes:       []string{"https://www.googleapis.com/auth/admob.readonly"},
+		Endpoint:     google.Endpoint,
+	}
+
+	ctx := context.Background()
+	token, err := getTokenFromFile("config/token.json")
+
+	if err != nil {
+		url := config.AuthCodeURL("state", oauth2.AccessTypeOffline)
+		fmt.Printf("このURLをブラウザで開いて、認証を完了してね！: %v\n", url)
+
+		// ブラウザでの認証後、リダイレクトURLに返されたコードを使ってトークンを取得
+		var code string
+		if _, err := fmt.Scan(&code); err != nil {
+			log.Fatal(err)
+		}
+
+		token, err = config.Exchange(ctx, code)
+		if err != nil {
+			log.Fatal(err)
+		}
+		saveToken("config/token.json", token)
+	}
+
+	client := config.Client(ctx, token)
+	resp, err := client.Get("https://accounts.google.com/o/oauth2/auth")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	fmt.Println("OAuth2認証が完了したよ！")
+
+	return client, nil
+}
+
+func saveToken(path string, token *oauth2.Token) {
+	f, err := os.Create(path)
+	if err != nil {
+		log.Fatalf("トークンの保存に失敗しちゃった！: %v", err)
+	}
+	defer f.Close()
+	json.NewEncoder(f).Encode(token)
+}
+
+func getTokenFromFile(file string) (*oauth2.Token, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	var token oauth2.Token
+	err = json.NewDecoder(f).Decode(&token)
+	return &token, err
 }
