@@ -32,9 +32,10 @@ func SendSlackMessage(client *slack.Client, channel string, cmd *NoticeSummaryCm
 	var totalEarning float64
 	var appEarningFields []*slack.TextBlockObject
 	for _, v := range result {
-		if v.Footer != nil {
+		if v.Footer != nil && v.Footer.MatchingRowCount != "" {
 			count, err := strconv.Atoi(v.Footer.MatchingRowCount)
 			if err != nil {
+				log.Println(err)
 				log.Fatalf("予期せぬエラー")
 			}
 			if count == 0 {
@@ -44,6 +45,7 @@ func SendSlackMessage(client *slack.Client, channel string, cmd *NoticeSummaryCm
 		if v.Row != nil {
 			e, err := strconv.Atoi(v.Row.MetricValues.EstimatedEarnings.MicrosValue)
 			if err != nil {
+				log.Println(err)
 				log.Fatalf("予期せぬエラー")
 			}
 			earning := math.Round(float64(e) / 1000000)
