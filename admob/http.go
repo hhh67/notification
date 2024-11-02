@@ -8,7 +8,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"os/exec"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -159,8 +161,14 @@ func oauth2Authentication() (*http.Client, error) {
 	token, err := getTokenFromFile("config/token.json")
 
 	if err != nil {
-		url := config.AuthCodeURL("state", oauth2.AccessTypeOffline)
-		fmt.Printf("このURLをブラウザで開いて、認証を完了してね！: %v\n", url)
+		u := config.AuthCodeURL("state", oauth2.AccessTypeOffline)
+		decoded, err := url.QueryUnescape(u)
+		if err != nil {
+			log.Fatal(err)
+		}
+		exec.Command("open", decoded).Run()
+
+		fmt.Printf("ログイン後のリダイレクト先にあるcodeを入力してEnterを押下してね！")
 
 		// ブラウザでの認証後、リダイレクトURLに返されたコードを使ってトークンを取得
 		var code string
