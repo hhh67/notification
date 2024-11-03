@@ -59,4 +59,6 @@ OAuth2認証が完了したよ！
 
 refresh_tokenは初回の認証時にのみ発行されるので、以下から一度アクセス権を削除してからコマンドを実行し直してみよう。
 
+https://myaccount.google.com/u/0/permissions?pli=1
+
 生成される`config/token.json`にrefresh_tokenが含まれるようになったら成功だよ。
